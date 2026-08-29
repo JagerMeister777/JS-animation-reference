@@ -1,0 +1,3153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript アニメーション技法 大全</title>
+<style>
+/* =========================================================
+   00. GLOBAL
+   ========================================================= */
+:root {
+    --bg: #07090b;
+    --surface: #101418;
+    --surface-2: #151b20;
+    --border: #293139;
+    --text: #e8edf0;
+    --muted: #89949d;
+    --accent: #63e6a5;
+    --accent-dark: #214e3b;
+    --danger: #ff6b6b;
+    --radius: 12px;
+    --content-width: 1000px;
+}
+* {
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+body {
+    margin: 0;
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            #18251f 0,
+            var(--bg) 40%
+        );
+    color: var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    line-height: 1.7;
+}
+button,
+input {
+    font: inherit;
+}
+button {
+    cursor: pointer;
+}
+code {
+    color: var(--accent);
+}
+pre {
+    overflow-x: auto;
+    padding: 16px;
+    background: #080a0c;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+#scrollProgress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    z-index: 9999;
+    background: var(--accent);
+}
+/* =========================================================
+   HEADER
+   ========================================================= */
+.hero {
+    max-width: var(--content-width);
+    margin: auto;
+    padding:
+        70px
+        20px
+        50px;
+}
+.hero-label {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: .15em;
+}
+.hero h1 {
+    margin:
+        10px
+        0
+        16px;
+    font-size:
+        clamp(
+            32px,
+            7vw,
+            64px
+        );
+    line-height: 1.15;
+}
+.hero p {
+    max-width: 700px;
+    color: var(--muted);
+    font-size: 15px;
+}
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+.toc {
+    max-width: var(--content-width);
+    margin:
+        0
+        auto
+        30px;
+    padding:
+        0
+        20px;
+}
+.toc-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+.toc a {
+    padding:
+        5px
+        9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+}
+.toc a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+/* =========================================================
+   MAIN
+   ========================================================= */
+main {
+    max-width: var(--content-width);
+    margin: auto;
+    padding:
+        0
+        20px
+        80px;
+}
+/* =========================================================
+   CATEGORY
+   ========================================================= */
+.category {
+    margin-top: 70px;
+}
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.category-title span {
+    color: var(--accent);
+    font-size: 12px;
+}
+.category-title h2 {
+    margin: 0;
+    font-size: 24px;
+}
+/* =========================================================
+   CARD
+   ========================================================= */
+.technique {
+    margin-bottom: 22px;
+    padding: 20px;
+    background:
+        linear-gradient(
+            145deg,
+            var(--surface),
+            #0d1114
+        );
+    border:
+        1px solid
+        var(--border);
+    border-radius: var(--radius);
+}
+.technique-header {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.number {
+    flex:
+        0 0
+        38px;
+    color: var(--accent);
+    font-family: monospace;
+    font-size: 13px;
+}
+.technique h3 {
+    margin:
+        0
+        0
+        6px;
+    font-size: 19px;
+}
+.description {
+    margin:
+        0
+        0
+        18px;
+    color: var(--muted);
+    font-size: 14px;
+}
+/* =========================================================
+   DEMO
+   ========================================================= */
+.demo {
+    position: relative;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin:
+        15px
+        0;
+    padding: 20px;
+    overflow: hidden;
+    background: #080b0d;
+    border:
+        1px
+        solid
+        var(--border);
+    border-radius: 9px;
+}
+.demo-column {
+    flex-direction: column;
+}
+.demo-row {
+    gap: 12px;
+}
+.demo-button {
+    padding:
+        9px
+        14px;
+    border:
+        1px
+        solid
+        #3b454c;
+    border-radius: 7px;
+    background: #171d21;
+    color: var(--text);
+}
+.demo-button:hover {
+    border-color: var(--accent);
+}
+.hint {
+    margin-top: 8px;
+    color: #68737b;
+    font-size: 12px;
+}
+/* =========================================================
+   SOURCE
+   ========================================================= */
+.source-title {
+    margin-top: 18px;
+    color: #aab4bb;
+    font-size: 12px;
+    font-weight: bold;
+}
+details {
+    margin-top: 10px;
+}
+summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 13px;
+}
+.explain {
+    margin-top: 12px;
+    padding:
+        12px
+        14px;
+    background:
+        rgba(
+            99,
+            230,
+            165,
+            .04
+        );
+    border-left:
+        3px
+        solid
+        var(--accent);
+    color: #b6c0c6;
+    font-size: 13px;
+}
+.explain strong {
+    color: #e8edf0;
+}
+/* =========================================================
+   01 TRANSITION
+   ========================================================= */
+.transition-stage {
+    position: relative;
+    width: 100%;
+    height: 70px;
+}
+.transition-box {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    transform:
+        translateY(-50%);
+    background: var(--accent);
+    border-radius: 8px;
+    transition:
+        left .6s ease,
+        transform .6s ease;
+}
+.transition-stage.on .transition-box {
+    left: calc(100% - 50px);
+    transform:
+        translateY(-50%)
+        rotate(180deg);
+}
+/* =========================================================
+   02 KEYFRAMES
+   ========================================================= */
+.float-box {
+    width: 50px;
+    height: 50px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation:
+        floatY
+        1.8s
+        ease-in-out
+        infinite;
+}
+@keyframes floatY {
+    0%, 100% {
+        transform: translateY(15px);
+    }
+    50% {
+        transform: translateY(-25px);
+    }
+}
+/* =========================================================
+   03 RAF
+   ========================================================= */
+.raf-stage {
+    position: relative;
+    width: 100%;
+    height: 60px;
+}
+.raf-box {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 45px;
+    height: 45px;
+    transform: translateY(-50%);
+    background: var(--accent);
+    border-radius: 50%;
+}
+/* =========================================================
+   04 WEB ANIMATIONS API
+   ========================================================= */
+.wa-box {
+    width: 45px;
+    height: 45px;
+    background: var(--accent);
+    border-radius: 8px;
+}
+/* =========================================================
+   05 EASING
+   ========================================================= */
+.easing-stage {
+    width: 100%;
+}
+.easing-row {
+    position: relative;
+    height: 40px;
+    border-bottom:
+        1px
+        solid
+        #222;
+}
+.easing-dot {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform:
+        translateY(-50%);
+    background: var(--accent);
+    border-radius: 50%;
+}
+/* =========================================================
+   07 GRAVITY
+   ========================================================= */
+.gravity-stage {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    border-bottom:
+        2px
+        solid
+        #333;
+}
+.gravity-ball {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    transform: translateX(-50%);
+    background: var(--accent);
+    border-radius: 50%;
+}
+/* =========================================================
+   08 SPRING
+   ========================================================= */
+.spring-target {
+    position: absolute;
+    width: 10px;
+    height: 80px;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            var(--accent),
+            var(--accent) 4px,
+            transparent 4px,
+            transparent 8px
+        );
+}
+.spring-box {
+    position: absolute;
+    left: 10%;
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 8px;
+}
+/* =========================================================
+   09 INERTIA
+   ========================================================= */
+.inertia-box {
+    width: 50px;
+    height: 50px;
+    background: var(--accent);
+    border-radius: 8px;
+    touch-action: none;
+}
+/* =========================================================
+   10 DRAG
+   ========================================================= */
+.drag-stage {
+    width: 100%;
+    height: 150px;
+    position: relative;
+}
+.drag-box {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 65px;
+    height: 65px;
+    transform:
+        translate(-50%, -50%);
+    background: var(--accent);
+    border-radius: 12px;
+    cursor: grab;
+    touch-action: none;
+}
+.drag-box:active {
+    cursor: grabbing;
+}
+/* =========================================================
+   11 MAGNET
+   ========================================================= */
+.magnet {
+    transition:
+        transform .15s ease-out;
+}
+/* =========================================================
+   12 RIPPLE
+   ========================================================= */
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+}
+.ripple {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    transform:
+        translate(-50%, -50%)
+        scale(0);
+    background:
+        rgba(
+            99,
+            230,
+            165,
+            .5
+        );
+    border-radius: 50%;
+    pointer-events: none;
+    animation:
+        ripple .6s ease-out;
+}
+@keyframes ripple {
+    to {
+        transform:
+            translate(-50%, -50%)
+            scale(25);
+        opacity: 0;
+    }
+}
+/* =========================================================
+   13 TILT
+   ========================================================= */
+.tilt-card {
+    width: 180px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            135deg,
+            #1c3329,
+            #101817
+        );
+    border:
+        1px
+        solid
+        var(--accent);
+    border-radius: 12px;
+    transform-style: preserve-3d;
+    transition:
+        transform .15s ease-out;
+}
+/* =========================================================
+   14 INTERSECTION
+   ========================================================= */
+.observe-box {
+    width: 100%;
+    padding: 30px;
+    opacity: 0;
+    transform:
+        translateY(30px);
+    transition:
+        opacity .7s ease,
+        transform .7s ease;
+    background: #121a16;
+    border:
+        1px
+        solid
+        var(--border);
+    text-align: center;
+}
+.observe-box.in {
+    opacity: 1;
+    transform:
+        translateY(0);
+}
+/* =========================================================
+   16 PARALLAX
+   ========================================================= */
+.parallax-stage {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            #101b18,
+            #080c0d
+        );
+}
+.parallax-back {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    left: 20%;
+    top: 20px;
+    background:
+        radial-gradient(
+            circle,
+            #284c3b,
+            transparent 70%
+        );
+}
+.parallax-front {
+    position: absolute;
+    right: 20%;
+    bottom: 20px;
+    font-size: 40px;
+    color: var(--accent);
+}
+/* =========================================================
+   17 STAGGER
+   ========================================================= */
+.stagger-item {
+    padding: 8px 14px;
+    background: #18221d;
+    border-radius: 6px;
+    opacity: 0;
+    transform:
+        translateY(15px);
+    transition:
+        opacity .5s ease,
+        transform .5s ease;
+}
+.stagger-item.in {
+    opacity: 1;
+    transform:
+        translateY(0);
+}
+/* =========================================================
+   18 CSS SCROLL
+   ========================================================= */
+.scroll-driven {
+    width: 30px;
+    height: 100px;
+    background:
+        linear-gradient(
+            to top,
+            var(--accent),
+            transparent
+        );
+    animation:
+        grow linear;
+    animation-timeline:
+        scroll(root);
+}
+@keyframes grow {
+    from {
+        transform:
+            scaleY(.1);
+    }
+    to {
+        transform:
+            scaleY(1);
+    }
+}
+/* =========================================================
+   19 TYPING
+   ========================================================= */
+.typing-output {
+    min-height: 30px;
+    color: var(--accent);
+    font-family: monospace;
+}
+/* =========================================================
+   20 COUNTER
+   ========================================================= */
+.counter {
+    font-size: 40px;
+    color: var(--accent);
+    font-family: monospace;
+}
+/* =========================================================
+   21 SPLIT TEXT
+   ========================================================= */
+.split-output span {
+    display: inline-block;
+    opacity: 0;
+    transform:
+        translateY(20px)
+        rotate(10deg);
+    transition:
+        opacity .5s ease,
+        transform .5s ease;
+}
+.split-output span.in {
+    opacity: 1;
+    transform:
+        translateY(0)
+        rotate(0);
+}
+/* =========================================================
+   22 SVG
+   ========================================================= */
+.svg-demo path {
+    fill: none;
+    stroke:
+        var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+/* =========================================================
+   23 CANVAS
+   ========================================================= */
+canvas {
+    max-width: 100%;
+    border:
+        1px
+        solid
+        var(--border);
+    background: #050707;
+}
+/* =========================================================
+   24 FLIP
+   ========================================================= */
+.flip-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.flip-item {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #07100b;
+    border-radius: 6px;
+    font-weight: bold;
+}
+/* =========================================================
+   25 LOADING
+   ========================================================= */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border:
+        4px
+        solid
+        #26332d;
+    border-top-color:
+        var(--accent);
+    border-radius: 50%;
+    animation:
+        spin
+        .8s
+        linear
+        infinite;
+}
+@keyframes spin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+/* =========================================================
+   26 MARQUEE
+   ========================================================= */
+.marquee {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.marquee-track {
+    display: inline-flex;
+    width: max-content;
+    animation:
+        marquee
+        12s
+        linear
+        infinite;
+}
+.marquee-item {
+    padding:
+        0
+        20px;
+    color: var(--accent);
+    font-family: monospace;
+}
+@keyframes marquee {
+    from {
+        transform:
+            translateX(0);
+    }
+    to {
+        transform:
+            translateX(-50%);
+    }
+}
+/* =========================================================
+   27 VIEW TRANSITIONS
+   ========================================================= */
+.vt-box {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #07100b;
+    border-radius: 12px;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: .5s;
+}
+/* =========================================================
+   28 REDUCED MOTION
+   ========================================================= */
+@media (
+    prefers-reduced-motion: reduce
+) {
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            .01ms !important;
+        animation-iteration-count:
+            1 !important;
+        transition-duration:
+            .01ms !important;
+        scroll-behavior:
+            auto !important;
+    }
+}
+/* =========================================================
+   MOBILE
+   ========================================================= */
+@media (max-width: 600px) {
+    .hero {
+        padding-top: 45px;
+    }
+    .technique {
+        padding: 16px;
+    }
+    pre {
+        font-size: 11px;
+    }
+}
+</style>
+</head>
+<body>
+<div id="scrollProgress"></div>
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+<header class="hero">
+<div class="hero-label">
+JAVASCRIPT ANIMATION REFERENCE
+</div>
+<h1>
+JavaScript<br>
+アニメーション技法 大全
+</h1>
+<p>
+基礎手法から物理演算・インタラクション・
+スクロール連動・SVG・Canvas・ブラウザAPIまで。
+実際に操作しながら仕組みを確認する個人ナレッジ用リファレンス。
+</p>
+</header>
+<!-- =========================================================
+     TOC
+     ========================================================= -->
+<nav class="toc">
+<div class="toc-inner">
+
+基礎
+物理演算
+インタラクション
+スクロール連動
+テキスト・数値
+SVG / Canvas
+その他
+
+</div>
+</nav>
+<main>
+<!-- =========================================================
+     BASIC
+     ========================================================= -->
+<section
+    id="basic"
+    class="category"
+>
+<div class="category-title">
+<span>01 — 06</span>
+<h2>基礎</h2>
+</div>
+<!-- 01 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">01</div>
+<div>
+<h3>CSS Transition</h3>
+<p class="description">
+クラスの付け替えだけで動かす最も手軽な方法。
+JSはトリガーに徹し、動きの中身はCSSに書きます。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="transitionStage"
+    class="transition-stage"
+>
+<div class="transition-box"></div>
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“toggleTransition()”
+
+クラス切替
+<details>
+<summary>主要コード</summary>
+<pre><code>.box {
+    transition:
+        left .6s ease,
+        transform .6s;
+}
+.on .box {
+    left: calc(100% - 50px);
+    transform:
+        translateY(-50%)
+        rotate(180deg);
+}
+el.classList.toggle('on');</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+.6sを短くすると高速化します。
+easeをlinearにすると一定速度になります。
+rotate(180deg)を変更すると回転量が変わります。
+
+</div>
+</article>
+<!-- 02 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">02</div>
+<div>
+<h3>@keyframes アニメーション</h3>
+<p class="description">
+繰り返しや複数ステップの動きはCSS側に任せます。
+JSは開始・停止の制御だけにできます。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="float-box"></div>
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>@keyframes floatY {
+    0%, 100% {
+        transform:
+            translateY(15px);
+    }
+    50% {
+        transform:
+            translateY(-25px);
+    }
+}
+.box {
+    animation:
+        floatY
+        1.8s
+        ease-in-out
+        infinite;
+}</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+1.8s → 速度。
+-25px → 上方向への移動量。
+infinite → 繰り返し回数。
+50% → 動きの中間地点。
+
+</div>
+</article>
+<!-- 03 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">03</div>
+<div>
+<h3>requestAnimationFrame</h3>
+<p class="description">
+フレーム毎に数値を計算したいときに使う自前ループです。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="raf-stage">
+<div id="rafBox" class="raf-box"></div>
+</div>
+</div>
+<div class="demo-row">
+
+<button
+class=“demo-button”
+onclick=“startRAF()”
+
+開始
+<button
+class=“demo-button”
+onclick=“stopRAF()”
+
+停止
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>let x = 0;
+let dir = 1;
+function loop() {
+    x += dir * 3;
+    if (
+        x > maxX ||
+        x < 0
+    ) {
+        dir *= -1;
+    }
+    box.style.left =
+        x + 'px';
+    requestAnimationFrame(loop);
+}</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+x += dir * 3の3が速度です。
+毎フレーム自分で位置・速度・加速度などを計算したい場合に向いています。
+
+</div>
+</article>
+<!-- 04 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">04</div>
+<div>
+<h3>Web Animations API</h3>
+<p class="description">
+CSSを書かず、JavaScriptだけでキーフレームを定義します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div id="waBox" class="wa-box"></div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runWAAPI()”
+
+再生
+<details>
+<summary>主要コード</summary>
+<pre><code>box.animate(
+    [
+        {
+            transform:
+                'translateX(0) rotate(0deg)'
+        },
+        {
+            transform:
+                'translateX(250px) rotate(360deg)'
+        }
+    ],
+    {
+        duration: 900,
+        easing: 'ease-in-out',
+        fill: 'forwards'
+    }
+);</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+duration → 再生時間。
+translateX() → 移動距離。
+rotate() → 回転量。
+生成されたAnimationオブジェクトからpause()、reverse()なども操作できます。
+
+</div>
+</article>
+<!-- 05 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">05</div>
+<div>
+<h3>イージング比較</h3>
+<p class="description">
+同じ距離・同じ時間でも、イージングによって体感速度が大きく変わります。
+</p>
+</div>
+</div>
+<div class="demo demo-column">
+<div class="easing-stage">
+<div class="easing-row">
+<div
+    id="easeLinear"
+    class="easing-dot"
+></div>
+</div>
+<div class="easing-row">
+<div
+    id="easeOut"
+    class="easing-dot"
+></div>
+</div>
+<div class="easing-row">
+<div
+    id="easeBounce"
+    class="easing-dot"
+></div>
+</div>
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runEasing()”
+
+同時に走らせる
+<div class="explain">
+
+上から順に
+linear / ease-out / cubic-bezier(.68,-.55,.27,1.55)。
+最後のようなcubic-bezierでは、範囲を超えて移動する「オーバーシュート」も表現できます。
+
+</div>
+</article>
+<!-- 06 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">06</div>
+<div>
+<h3>Penner系イージング関数</h3>
+<p class="description">
+CSSのcubic-bezierでは表現しづらい、跳ねる・振動する動きを数式で計算します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="pennerBox"
+    class="wa-box"
+></div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runPenner()”
+
+easeOutBounceで走らせる
+<details>
+<summary>主要コード</summary>
+<pre><code>function easeOutBounce(t) {
+    const n1 = 7.5625;
+    const d1 = 2.75;
+    if (t < 1 / d1)
+        return n1 * t * t;
+    if (t < 2 / d1)
+        return n1 *
+            (t -= 1.5 / d1) *
+            t + .75;
+    if (t < 2.5 / d1)
+        return n1 *
+            (t -= 2.25 / d1) *
+            t + .9375;
+    return n1 *
+        (t -= 2.625 / d1) *
+        t + .984375;
+}</code></pre>
+</details>
+</article>
+</section>
+<!-- =========================================================
+     PHYSICS
+     ========================================================= -->
+<section
+    id="physics"
+    class="category"
+>
+<div class="category-title">
+<span>07 — 09</span>
+<h2>物理演算</h2>
+</div>
+<!-- 07 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">07</div>
+<div>
+<h3>重力バウンド</h3>
+<p class="description">
+速度・重力加速度・反発係数を毎フレーム更新します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="gravity-stage">
+<div
+    id="gravityBall"
+    class="gravity-ball"
+></div>
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“dropBall()”
+
+落とす
+<details>
+<summary>主要コード</summary>
+<pre><code>vy += gravity;
+y += vy;
+if (y > floorY) {
+    y = floorY;
+    vy *= -bounce;
+}</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+gravity → 重力。
+bounce → 反発係数。
+bounce = 1なら理想的には速度が維持され、0に近づくほど跳ねなくなります。
+
+</div>
+</article>
+<!-- 08 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">08</div>
+<div>
+<h3>スプリング（バネ）モーション</h3>
+<p class="description">
+目標値との差分に応じて加速するバネのシミュレーションです。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="springTarget"
+    class="spring-target"
+></div>
+<div
+    id="springBox"
+    class="spring-box"
+></div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runSpring()”
+
+目標へバネ移動
+<details>
+<summary>主要コード</summary>
+<pre><code>const force =
+    (target - pos) *
+    stiffness;
+vel =
+    (vel + force) *
+    damping;
+pos += vel;</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+stiffness → バネの強さ。
+damping → 振動の減衰量。
+stiffnessを大きくすると目標へ強く引っ張られ、dampingを小さくすると振動が長く続きます。
+
+</div>
+</article>
+<!-- 09 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">09</div>
+<div>
+<h3>慣性減速（フリック）</h3>
+<p class="description">
+速度を保持し、摩擦係数で徐々に減速させます。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="inertiaBox"
+    class="inertia-box"
+></div>
+</div>
+<div class="hint">
+ボックスをドラッグして弾いてください
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>x += vx;
+vx *= friction;
+if (
+    Math.abs(vx) > .3
+) {
+    requestAnimationFrame(inertia);
+}</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+frictionを1に近づけると長く滑ります。
+小さくするとすぐ止まります。
+
+</div>
+</article>
+</section>
+<!-- =========================================================
+     INTERACTION
+     ========================================================= -->
+<section
+    id="interaction"
+    class="category"
+>
+<div class="category-title">
+<span>10 — 13</span>
+<h2>インタラクション</h2>
+</div>
+<!-- 10 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">10</div>
+<div>
+<h3>ドラッグ操作（Pointer Events）</h3>
+<p class="description">
+pointerdown / pointermove / pointerupでマウス・タッチを同じコードで扱います。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="drag-stage">
+<div
+    id="dragBox"
+    class="drag-box"
+>
+DRAG
+</div>
+</div>
+</div>
+<div class="hint">
+PCではマウス、スマートフォンでは指でドラッグできます。
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>box.addEventListener(
+    'pointerdown',
+    e => {
+        document.addEventListener(
+            'pointermove',
+            move
+        );
+        ...
+    }
+);</code></pre>
+</details>
+</article>
+<!-- 11 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">11</div>
+<div>
+<h3>マグネットボタン</h3>
+<p class="description">
+ポインター位置とボタン中心の差分をtransformに反映します。
+</p>
+</div>
+</div>
+<div class="demo">
+
+<button
+id=“magnetButton”
+class=“demo-button magnet”
+
+Hover me
+</div>
+<div class="hint">
+PCではマウスをボタンの上で動かしてください。
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>const dx =
+    (e.clientX - r.left - r.width / 2)
+    * .3;
+const dy =
+    (e.clientY - r.top - r.height / 2)
+    * .3;
+btn.style.transform =
+    `translate(${dx}px, ${dy}px)`;</code></pre>
+</details>
+</article>
+<!-- 12 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">12</div>
+<div>
+<h3>リップルエフェクト</h3>
+<p class="description">
+クリック位置に円を生成し、拡大・フェードアウトして削除します。
+</p>
+</div>
+</div>
+<div class="demo">
+
+<button
+id=“rippleButton”
+class=“demo-button ripple-button”
+
+クリックしてみてください
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>ripple.addEventListener(
+    'animationend',
+    () => ripple.remove()
+);</code></pre>
+</details>
+<div class="explain">
+
+ポイント：
+
+「クリック位置にDOM要素を生成する」→「CSS Animationを再生する」→「animationendで削除」という流れです。
+
+</div>
+</article>
+<!-- 13 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">13</div>
+<div>
+<h3>3Dチルト</h3>
+<p class="description">
+ポインター位置からrotateX/Yを計算し、カードを立体的に傾けます。
+</p>
+</div>
+</div>
+<div
+    id="tiltArea"
+    class="demo"
+>
+<div
+    id="tiltCard"
+    class="tilt-card"
+>
+3D TILT
+</div>
+</div>
+<div class="hint">
+PCではマウス、スマートフォンではタッチで確認できます。
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>const rx =
+    (py - .5) * -20;
+const ry =
+    (px - .5) * 20;
+card.style.transform =
+    `rotateX(${rx}deg)
+     rotateY(${ry}deg)`;</code></pre>
+</details>
+</article>
+</section>
+<!-- =========================================================
+     SCROLL
+     ========================================================= -->
+<section
+    id="scroll"
+    class="category"
+>
+<div class="category-title">
+<span>14 — 18</span>
+<h2>スクロール連動</h2>
+</div>
+<!-- 14 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">14</div>
+<div>
+<h3>IntersectionObserver</h3>
+<p class="description">
+要素が画面内に入った瞬間を検知してクラスを付与します。
+</p>
+</div>
+</div>
+<div
+    id="observeBox"
+    class="observe-box"
+>
+
+この枠が表示領域に入ると発火
+
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>new IntersectionObserver(
+    entries => {
+        entries.forEach(e => {
+            if (
+                e.isIntersecting
+            ) {
+                e.target
+                    .classList
+                    .add('in');
+            }
+        });
+    },
+    {
+        threshold: .3
+    }
+);</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+threshold: .3を変更すると、要素の何％が見えたら発火するかを変更できます。
+
+</div>
+</article>
+<!-- 15 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">15</div>
+<div>
+<h3>スクロール進捗バー</h3>
+<p class="description">
+ページ全体の読了率を最上部の緑バーに反映します。
+</p>
+</div>
+</div>
+<div class="explain">
+
+ページ最上部の緑色のバーが、このページ全体のスクロール進捗です。
+
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>const pct =
+    h.scrollTop /
+    (h.scrollHeight -
+     h.clientHeight)
+    * 100;
+bar.style.width =
+    pct + '%';</code></pre>
+</details>
+</article>
+<!-- 16 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">16</div>
+<div>
+<h3>パララックス</h3>
+<p class="description">
+スクロール量に係数をかけ、背景と前景を異なる速度で動かします。
+</p>
+</div>
+</div>
+<div
+    id="parallaxStage"
+    class="parallax-stage"
+>
+<div
+    id="parallaxBack"
+    class="parallax-back"
+></div>
+<div
+    id="parallaxFront"
+    class="parallax-front"
+>
+PARALLAX
+</div>
+</div>
+<div class="hint">
+このページをスクロールすると背景がゆっくり動きます。
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>layer.style.transform =
+    `translateY(
+        ${window.scrollY * .08}px
+    )`;</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+.08がスクロールに対する移動係数です。
+大きくするとスクロールに対して大きく動きます。
+
+</div>
+</article>
+<!-- 17 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">17</div>
+<div>
+<h3>スタガー表示</h3>
+<p class="description">
+要素ごとに遅延をずらして順番に表示します。
+</p>
+</div>
+</div>
+<div
+    id="staggerContainer"
+    class="demo demo-column"
+>
+<div class="stagger-item">Item 1</div>
+<div class="stagger-item">Item 2</div>
+<div class="stagger-item">Item 3</div>
+<div class="stagger-item">Item 4</div>
+<div class="stagger-item">Item 5</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runStagger()”
+
+再生
+<details>
+<summary>主要コード</summary>
+<pre><code>el.style.transitionDelay =
+    (i * 90) + 'ms';
+el.classList.add('in');</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+90msを大きくすると、各要素の間隔が広がります。
+
+</div>
+</article>
+<!-- 18 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">18</div>
+<div>
+<h3>CSS スクロール駆動アニメーション</h3>
+<p class="description">
+対応ブラウザではJS不要で、スクロール量をアニメーションタイムラインとして利用できます。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="scroll-driven"></div>
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>.progress-el {
+    animation: grow linear;
+    animation-timeline:
+        scroll();
+}</code></pre>
+</details>
+<div class="explain">
+
+CSSだけでスクロールとアニメーションを関連付けられるのが特徴です。
+実運用では対応状況を確認し、必要に応じてJavaScriptによるフォールバックを用意します。
+
+</div>
+</article>
+</section>
+<!-- =========================================================
+     TEXT
+     ========================================================= -->
+<section
+    id="text"
+    class="category"
+>
+<div class="category-title">
+<span>19 — 21</span>
+<h2>テキスト・数値</h2>
+</div>
+<!-- 19 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">19</div>
+<div>
+<h3>タイピングエフェクト</h3>
+<p class="description">
+1文字ずつ追加していく定番のテキスト演出です。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="typingOutput"
+    class="typing-output"
+>
+|
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runTyping()”
+
+再生
+<details>
+<summary>主要コード</summary>
+<pre><code>el.textContent =
+    text.slice(0, i++) + '|';</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+1文字追加する間隔を変更すると、タイピング速度を変更できます。
+
+</div>
+</article>
+<!-- 20 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">20</div>
+<div>
+<h3>カウントアップ数値</h3>
+<p class="description">
+requestAnimationFrameで経過時間から進捗率を求め、数値を補間します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="counter"
+    class="counter"
+>
+0
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runCounter()”
+
+カウント開始
+<details>
+<summary>主要コード</summary>
+<pre><code>const p =
+    elapsed / duration;
+const value =
+    target *
+    (1 - Math.pow(1 - p, 3));
+el.textContent =
+    Math.floor(value);</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+target → 最終値。
+duration → カウントにかける時間。
+補間式を変えると数字の増え方も変わります。
+
+</div>
+</article>
+<!-- 21 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">21</div>
+<div>
+<h3>文字バラバラ演出（Split Text）</h3>
+<p class="description">
+文字をspanに分割し、遅延付きでアニメーションさせます。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="splitOutput"
+    class="split-output"
+>
+Animation
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runSplitText()”
+
+再生
+<details>
+<summary>主要コード</summary>
+<pre><code>text.split('').map(
+    (c, i) => {
+        const span =
+            document.createElement(
+                'span'
+            );
+        span.textContent = c;
+        span.style.transitionDelay =
+            (i * 50) + 'ms';
+        ...
+    }
+);</code></pre>
+</details>
+</article>
+</section>
+<!-- =========================================================
+     SVG CANVAS
+     ========================================================= -->
+<section
+    id="svg"
+    class="category"
+>
+<div class="category-title">
+<span>22 — 23</span>
+<h2>SVG / Canvas</h2>
+</div>
+<!-- 22 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">22</div>
+<div>
+<h3>SVGラインドロー</h3>
+<p class="description">
+strokeDasharrayとstrokeDashoffsetで、線が描かれるように見せます。
+</p>
+</div>
+</div>
+<div class="demo">
+
+<svg
+class=“svg-demo”
+width=“300”
+height=“100”
+viewBox=“0 0 300 100”
+
+</svg>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runSVG()”
+
+描画再生
+<details>
+<summary>主要コード</summary>
+<pre><code>const len =
+    path.getTotalLength();
+path.style.strokeDasharray =
+    len;
+path.style.strokeDashoffset =
+    len;</code></pre>
+</details>
+<div class="explain">
+
+線の長さを取得し、dashoffsetをアニメーションさせることで「線が描かれる」ように見せています。
+
+</div>
+</article>
+<!-- 23 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">23</div>
+<div>
+<h3>Canvasパーティクル</h3>
+<p class="description">
+粒子を毎フレーム更新してCanvasへ描画し直します。
+</p>
+</div>
+</div>
+<div class="demo">
+
+<canvas
+id=“particleCanvas”
+width=“600”
+height=“220”
+
+</canvas>
+</div>
+<div class="demo-row">
+
+<button
+class=“demo-button”
+onclick=“startParticles()”
+
+再生
+<button
+class=“demo-button”
+onclick=“stopParticles()”
+
+停止
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    ctx.arc(
+        p.x,
+        p.y,
+        2,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+});</code></pre>
+</details>
+<div class="explain">
+
+変更ポイント：
+
+vx、vy → 粒子速度。
+粒子数 → 密度。
+arc()の半径 → 粒子サイズ。
+CanvasはDOM要素を大量生成する方式とは異なり、1枚の描画領域を毎フレーム更新します。
+
+</div>
+</article>
+</section>
+<!-- =========================================================
+     OTHER
+     ========================================================= -->
+<section
+    id="other"
+    class="category"
+>
+<div class="category-title">
+<span>24 — 28</span>
+<h2>その他</h2>
+</div>
+<!-- 24 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">24</div>
+<div>
+<h3>FLIP法</h3>
+<p class="description">
+First・Last・Invert・Play。
+DOMのレイアウト変化をtransformで滑らかに見せる定番手法です。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="flipContainer"
+    class="flip-container"
+>
+<div class="flip-item">A</div>
+<div class="flip-item">B</div>
+<div class="flip-item">C</div>
+<div class="flip-item">D</div>
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runFLIP()”
+
+並び替え
+<details>
+<summary>主要コード</summary>
+<pre><code>const first =
+    el.getBoundingClientRect();
+container.appendChild(el);
+const last =
+    el.getBoundingClientRect();
+const dx =
+    first.left - last.left;
+el.style.transform =
+    `translateX(${dx}px)`;
+requestAnimationFrame(
+    () => {
+        el.style.transform = '';
+    }
+);</code></pre>
+</details>
+<div class="explain">
+
+FLIP：
+First → Last → Invert → Play。
+レイアウトそのものをアニメーションするのではなく、レイアウト変更前後の差分をtransformで補間します。
+
+</div>
+</article>
+<!-- 25 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">25</div>
+<div>
+<h3>ローディング表現</h3>
+<p class="description">
+CSS @keyframesだけで完結する代表的なローディング表現です。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="spinner"></div>
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>@keyframes spin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+.spinner {
+    animation:
+        spin
+        .8s
+        linear
+        infinite;
+}</code></pre>
+</details>
+<div class="explain">
+
+JavaScriptを必要としないため、単純な待機中表示にはCSS Animationだけで十分なケースがあります。
+
+</div>
+</article>
+<!-- 26 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">26</div>
+<div>
+<h3>マーキー（無限ループスクロール）</h3>
+<p class="description">
+コンテンツを2セット連結し、半分だけtranslateXすることで継ぎ目のない無限ループを作ります。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="marquee">
+<div class="marquee-track">
+<div class="marquee-item">homelab</div>
+<div class="marquee-item">JavaScript</div>
+<div class="marquee-item">Spring Boot</div>
+<div class="marquee-item">React</div>
+<div class="marquee-item">Canvas</div>
+<div class="marquee-item">homelab</div>
+<div class="marquee-item">JavaScript</div>
+<div class="marquee-item">Spring Boot</div>
+<div class="marquee-item">React</div>
+<div class="marquee-item">Canvas</div>
+</div>
+</div>
+</div>
+<details>
+<summary>主要コード</summary>
+<pre><code>@keyframes marquee {
+    from {
+        transform:
+            translateX(0);
+    }
+    to {
+        transform:
+            translateX(-50%);
+    }
+}</code></pre>
+</details>
+<div class="explain">
+
+重要：
+2セットを同じ内容で連結することがポイントです。
+1セット分の幅を移動し終えた瞬間に、2セット目が1セット目と同じ位置に来るため、ループが自然につながります。
+
+</div>
+</article>
+<!-- 27 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">27</div>
+<div>
+<h3>View Transitions API</h3>
+<p class="description">
+DOM更新の前後をブラウザが自動的に補間します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div
+    id="vtBox"
+    class="vt-box"
+>
+A
+</div>
+</div>
+
+<button
+class=“demo-button”
+onclick=“runViewTransition()”
+
+デモ
+<details>
+<summary>主要コード</summary>
+<pre><code>document
+    .startViewTransition?.(
+        () => updateDOM()
+    );</code></pre>
+</details>
+<div class="explain">
+
+APIが利用できる環境ではView Transitionを利用し、非対応環境では通常のDOM更新へフォールバックします。
+
+</div>
+</article>
+<!-- 28 -->
+<article class="technique">
+<div class="technique-header">
+<div class="number">28</div>
+<div>
+<h3>prefers-reduced-motion</h3>
+<p class="description">
+OS側で視差効果やアニメーションを減らす設定をしているユーザーには、過剰なモーションを抑制します。
+</p>
+</div>
+</div>
+<div class="demo">
+<div class="float-box"></div>
+</div>
+<details open>
+<summary>主要コード</summary>
+<pre><code>@media (
+    prefers-reduced-motion: reduce
+) {
+    * {
+        animation-duration:
+            .01ms !important;
+        transition-duration:
+            .01ms !important;
+    }
+}</code></pre>
+</details>
+<div class="explain">
+
+アクセシビリティ上の重要ポイントです。
+アニメーションを使う場合、ユーザー側の「動きを減らしたい」という設定を尊重できるようにしておくと安全です。
+
+</div>
+</article>
+</section>
+</main>
+<footer
+    style="
+        padding:40px 20px;
+        text-align:center;
+        color:#59636a;
+        font-size:12px;
+    "
+>
+
+JavaScript Animation Technique Reference
+
+</footer>
+<script>
+/* =========================================================
+   01 CSS TRANSITION
+   ========================================================= */
+function toggleTransition() {
+    document
+        .getElementById(
+            "transitionStage"
+        )
+        .classList
+        .toggle("on");
+}
+/* =========================================================
+   03 requestAnimationFrame
+   ========================================================= */
+let rafId = null;
+let rafX = 0;
+let rafDir = 1;
+function rafLoop() {
+    const box =
+        document.getElementById(
+            "rafBox"
+        );
+    const stage =
+        box.parentElement;
+    const maxX =
+        stage.clientWidth -
+        box.offsetWidth;
+    rafX += rafDir * 3;
+    if (
+        rafX >= maxX ||
+        rafX <= 0
+    ) {
+        rafDir *= -1;
+    }
+    box.style.left =
+        rafX + "px";
+    rafId =
+        requestAnimationFrame(
+            rafLoop
+        );
+}
+function startRAF() {
+    if (rafId === null) {
+        rafId =
+            requestAnimationFrame(
+                rafLoop
+            );
+    }
+}
+function stopRAF() {
+    cancelAnimationFrame(
+        rafId
+    );
+    rafId = null;
+}
+/* =========================================================
+   04 Web Animations API
+   ========================================================= */
+function runWAAPI() {
+    const box =
+        document.getElementById(
+            "waBox"
+        );
+    box.animate(
+        [
+            {
+                transform:
+                    "translateX(0) rotate(0deg)"
+            },
+            {
+                transform:
+                    "translateX(250px) rotate(360deg)"
+            }
+        ],
+        {
+            duration: 900,
+            easing: "ease-in-out",
+            fill: "forwards"
+        }
+    );
+}
+/* =========================================================
+   05 EASING
+   ========================================================= */
+function runEasing() {
+    const configs = [
+        [
+            "easeLinear",
+            "linear"
+        ],
+        [
+            "easeOut",
+            "ease-out"
+        ],
+        [
+            "easeBounce",
+            "cubic-bezier(.68,-.55,.27,1.55)"
+        ]
+    ];
+    configs.forEach(
+        ([id, easing]) => {
+            const el =
+                document.getElementById(
+                    id
+                );
+            el.style.transition =
+                "none";
+            el.style.left =
+                "0px";
+            requestAnimationFrame(
+                () => {
+                    el.style.transition =
+                        `left 1.2s ${easing}`;
+                    el.style.left =
+                        "calc(100% - 18px)";
+                }
+            );
+        }
+    );
+}
+/* =========================================================
+   06 PENNER
+   ========================================================= */
+function easeOutBounce(t) {
+    const n1 = 7.5625;
+    const d1 = 2.75;
+    if (
+        t < 1 / d1
+    ) {
+        return n1 * t * t;
+    }
+    if (
+        t < 2 / d1
+    ) {
+        return n1 *
+            (t -= 1.5 / d1) *
+            t + .75;
+    }
+    if (
+        t < 2.5 / d1
+    ) {
+        return n1 *
+            (t -= 2.25 / d1) *
+            t + .9375;
+    }
+    return n1 *
+        (t -= 2.625 / d1) *
+        t + .984375;
+}
+function runPenner() {
+    const box =
+        document.getElementById(
+            "pennerBox"
+        );
+    const start =
+        performance.now();
+    const duration =
+        1400;
+    function frame(now) {
+        const t =
+            Math.min(
+                (now - start) /
+                duration,
+                1
+            );
+        const eased =
+            easeOutBounce(t);
+        box.style.transform =
+            `translateX(${eased * 250}px)`;
+        if (t < 1) {
+            requestAnimationFrame(
+                frame
+            );
+        }
+    }
+    requestAnimationFrame(
+        frame
+    );
+}
+/* =========================================================
+   07 GRAVITY
+   ========================================================= */
+function dropBall() {
+    const ball =
+        document.getElementById(
+            "gravityBall"
+        );
+    let y = 0;
+    let vy = 0;
+    const gravity = .7;
+    const bounce = .72;
+    const floorY = 140;
+    function frame() {
+        vy += gravity;
+        y += vy;
+        if (
+            y >= floorY
+        ) {
+            y = floorY;
+            vy *= -bounce;
+            if (
+                Math.abs(vy) < .8
+            ) {
+                ball.style.top =
+                    y + "px";
+                return;
+            }
+        }
+        ball.style.top =
+            y + "px";
+        requestAnimationFrame(
+            frame
+        );
+    }
+    requestAnimationFrame(
+        frame
+    );
+}
+/* =========================================================
+   08 SPRING
+   ========================================================= */
+function runSpring() {
+    const box =
+        document.getElementById(
+            "springBox"
+        );
+    const target =
+        document.getElementById(
+            "springTarget"
+        );
+    const container =
+        box.parentElement;
+    const targetX =
+        container.clientWidth -
+        80;
+    target.style.left =
+        targetX + "px";
+    let pos = 20;
+    let vel = 0;
+    const stiffness = .08;
+    const damping = .82;
+    function frame() {
+        const force =
+            (targetX - pos) *
+            stiffness;
+        vel =
+            (vel + force) *
+            damping;
+        pos += vel;
+        box.style.left =
+            pos + "px";
+        if (
+            Math.abs(vel) > .05 ||
+            Math.abs(targetX - pos) > .05
+        ) {
+            requestAnimationFrame(
+                frame
+            );
+        }
+    }
+    requestAnimationFrame(
+        frame
+    );
+}
+/* =========================================================
+   09 INERTIA
+   ========================================================= */
+const inertiaBox =
+    document.getElementById(
+        "inertiaBox"
+    );
+let inertiaX = 0;
+let inertiaV = 0;
+let inertiaDragging = false;
+let inertiaLastX = 0;
+let inertiaRAF = null;
+inertiaBox.addEventListener(
+    "pointerdown",
+    e => {
+        inertiaDragging = true;
+        inertiaLastX =
+            e.clientX;
+        inertiaV = 0;
+        inertiaBox.setPointerCapture(
+            e.pointerId
+        );
+    }
+);
+inertiaBox.addEventListener(
+    "pointermove",
+    e => {
+        if (!inertiaDragging)
+            return;
+        const dx =
+            e.clientX -
+            inertiaLastX;
+        inertiaLastX =
+            e.clientX;
+        inertiaX += dx;
+        inertiaV =
+            dx;
+        inertiaX =
+            Math.max(
+                0,
+                Math.min(
+                    inertiaX,
+                    inertiaBox.parentElement
+                        .clientWidth -
+                    inertiaBox.offsetWidth
+                )
+            );
+        inertiaBox.style.transform =
+            `translateX(${inertiaX}px)`;
+    }
+);
+inertiaBox.addEventListener(
+    "pointerup",
+    () => {
+        inertiaDragging = false;
+        cancelAnimationFrame(
+            inertiaRAF
+        );
+        inertiaLoop();
+    }
+);
+function inertiaLoop() {
+    inertiaX += inertiaV;
+    inertiaV *= .94;
+    const max =
+        inertiaBox.parentElement
+            .clientWidth -
+        inertiaBox.offsetWidth;
+    if (
+        inertiaX < 0 ||
+        inertiaX > max
+    ) {
+        inertiaX =
+            Math.max(
+                0,
+                Math.min(
+                    inertiaX,
+                    max
+                )
+            );
+        inertiaV *= -.6;
+    }
+    inertiaBox.style.transform =
+        `translateX(${inertiaX}px)`;
+    if (
+        Math.abs(inertiaV) > .3
+    ) {
+        inertiaRAF =
+            requestAnimationFrame(
+                inertiaLoop
+            );
+    }
+}
+/* =========================================================
+   10 DRAG
+   ========================================================= */
+const dragBox =
+    document.getElementById(
+        "dragBox"
+    );
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+dragBox.addEventListener(
+    "pointerdown",
+    e => {
+        const rect =
+            dragBox.getBoundingClientRect();
+        dragOffsetX =
+            e.clientX -
+            rect.left;
+        dragOffsetY =
+            e.clientY -
+            rect.top;
+        dragBox.setPointerCapture(
+            e.pointerId
+        );
+    }
+);
+dragBox.addEventListener(
+    "pointermove",
+    e => {
+        if (
+            !dragBox.hasPointerCapture(
+                e.pointerId
+            )
+        ) {
+            return;
+        }
+        const parent =
+            dragBox.parentElement
+                .getBoundingClientRect();
+        let x =
+            e.clientX -
+            parent.left -
+            dragOffsetX;
+        let y =
+            e.clientY -
+            parent.top -
+            dragOffsetY;
+        x =
+            Math.max(
+                0,
+                Math.min(
+                    x,
+                    parent.width -
+                    dragBox.offsetWidth
+                )
+            );
+        y =
+            Math.max(
+                0,
+                Math.min(
+                    y,
+                    parent.height -
+                    dragBox.offsetHeight
+                )
+            );
+        dragBox.style.left =
+            x + "px";
+        dragBox.style.top =
+            y + "px";
+        dragBox.style.transform =
+            "none";
+    }
+);
+/* =========================================================
+   11 MAGNET
+   ========================================================= */
+const magnetButton =
+    document.getElementById(
+        "magnetButton"
+    );
+magnetButton.addEventListener(
+    "pointermove",
+    e => {
+        const r =
+            magnetButton.getBoundingClientRect();
+        const dx =
+            (e.clientX -
+             r.left -
+             r.width / 2) * .3;
+        const dy =
+            (e.clientY -
+             r.top -
+             r.height / 2) * .3;
+        magnetButton.style.transform =
+            `translate(${dx}px, ${dy}px)`;
+    }
+);
+magnetButton.addEventListener(
+    "pointerleave",
+    () => {
+        magnetButton.style.transform =
+            "";
+    }
+);
+/* =========================================================
+   12 RIPPLE
+   ========================================================= */
+document
+    .getElementById(
+        "rippleButton"
+    )
+    .addEventListener(
+        "pointerdown",
+        e => {
+            const button =
+                e.currentTarget;
+            const rect =
+                button.getBoundingClientRect();
+            const ripple =
+                document.createElement(
+                    "span"
+                );
+            ripple.className =
+                "ripple";
+            ripple.style.left =
+                (e.clientX -
+                 rect.left) + "px";
+            ripple.style.top =
+                (e.clientY -
+                 rect.top) + "px";
+            button.appendChild(
+                ripple
+            );
+            ripple.addEventListener(
+                "animationend",
+                () => ripple.remove()
+            );
+        }
+    );
+/* =========================================================
+   13 TILT
+   ========================================================= */
+const tiltArea =
+    document.getElementById(
+        "tiltArea"
+    );
+const tiltCard =
+    document.getElementById(
+        "tiltCard"
+    );
+tiltArea.addEventListener(
+    "pointermove",
+    e => {
+        const rect =
+            tiltArea.getBoundingClientRect();
+        const px =
+            (e.clientX -
+             rect.left) /
+            rect.width;
+        const py =
+            (e.clientY -
+             rect.top) /
+            rect.height;
+        const rx =
+            (py - .5) * -20;
+        const ry =
+            (px - .5) * 20;
+        tiltCard.style.transform =
+            `rotateX(${rx}deg)
+             rotateY(${ry}deg)`;
+    }
+);
+tiltArea.addEventListener(
+    "pointerleave",
+    () => {
+        tiltCard.style.transform =
+            "";
+    }
+);
+/* =========================================================
+   14 INTERSECTION OBSERVER
+   ========================================================= */
+const observer =
+    new IntersectionObserver(
+        entries => {
+            entries.forEach(
+                entry => {
+                    if (
+                        entry.isIntersecting
+                    ) {
+                        entry.target
+                            .classList
+                            .add("in");
+                    }
+                }
+            );
+        },
+        {
+            threshold: .3
+        }
+    );
+observer.observe(
+    document.getElementById(
+        "observeBox"
+    )
+);
+/* =========================================================
+   15 SCROLL PROGRESS
+   ========================================================= */
+const progressBar =
+    document.getElementById(
+        "scrollProgress"
+    );
+function updateProgress() {
+    const scrollTop =
+        document.documentElement
+            .scrollTop;
+    const scrollHeight =
+        document.documentElement
+            .scrollHeight;
+    const clientHeight =
+        document.documentElement
+            .clientHeight;
+    const max =
+        scrollHeight -
+        clientHeight;
+    const pct =
+        max > 0
+            ? scrollTop / max * 100
+            : 0;
+    progressBar.style.width =
+        pct + "%";
+}
+window.addEventListener(
+    "scroll",
+    updateProgress,
+    {
+        passive: true
+    }
+);
+/* =========================================================
+   16 PARALLAX
+   ========================================================= */
+const parallaxBack =
+    document.getElementById(
+        "parallaxBack"
+    );
+window.addEventListener(
+    "scroll",
+    () => {
+        const rect =
+            document
+                .getElementById(
+                    "parallaxStage"
+                )
+                .getBoundingClientRect();
+        const movement =
+            -rect.top * .08;
+        parallaxBack.style.transform =
+            `translateY(${movement}px)`;
+    },
+    {
+        passive: true
+    }
+);
+/* =========================================================
+   17 STAGGER
+   ========================================================= */
+function runStagger() {
+    const items =
+        document
+            .querySelectorAll(
+                "#staggerContainer .stagger-item"
+            );
+    items.forEach(
+        (el, i) => {
+            el.classList.remove(
+                "in"
+            );
+            el.style.transitionDelay =
+                (i * 90) + "ms";
+            setTimeout(
+                () => {
+                    el.classList.add(
+                        "in"
+                    );
+                },
+                20
+            );
+        }
+    );
+}
+/* =========================================================
+   19 TYPING
+   ========================================================= */
+function runTyping() {
+    const el =
+        document.getElementById(
+            "typingOutput"
+        );
+    const text =
+        "JavaScript Animation";
+    let i = 0;
+    el.textContent = "";
+    function type() {
+        el.textContent =
+            text.slice(0, i) +
+            "|";
+        i++;
+        if (
+            i <= text.length
+        ) {
+            setTimeout(
+                type,
+                80
+            );
+        } else {
+            setTimeout(
+                () => {
+                    el.textContent =
+                        text;
+                },
+                500
+            );
+        }
+    }
+    type();
+}
+/* =========================================================
+   20 COUNTER
+   ========================================================= */
+function runCounter() {
+    const el =
+        document.getElementById(
+            "counter"
+        );
+    const target =
+        10000;
+    const duration =
+        1600;
+    const start =
+        performance.now();
+    function frame(now) {
+        const p =
+            Math.min(
+                (now - start) /
+                duration,
+                1
+            );
+        const value =
+            target *
+            (1 - Math.pow(1 - p, 3));
+        el.textContent =
+            Math.floor(value)
+                .toLocaleString();
+        if (p < 1) {
+            requestAnimationFrame(
+                frame
+            );
+        }
+    }
+    requestAnimationFrame(
+        frame
+    );
+}
+/* =========================================================
+   21 SPLIT TEXT
+   ========================================================= */
+function runSplitText() {
+    const el =
+        document.getElementById(
+            "splitOutput"
+        );
+    const text =
+        "Animation";
+    el.innerHTML = "";
+    [...text].forEach(
+        (char, i) => {
+            const span =
+                document.createElement(
+                    "span"
+                );
+            span.textContent =
+                char;
+            span.style.transitionDelay =
+                (i * 50) + "ms";
+            el.appendChild(
+                span
+            );
+            requestAnimationFrame(
+                () => {
+                    span.classList.add(
+                        "in"
+                    );
+                }
+            );
+        }
+    );
+}
+/* =========================================================
+   22 SVG
+   ========================================================= */
+function runSVG() {
+    const path =
+        document.getElementById(
+            "svgPath"
+        );
+    const len =
+        path.getTotalLength();
+    path.style.strokeDasharray =
+        len;
+    path.style.strokeDashoffset =
+        len;
+    path.animate(
+        [
+            {
+                strokeDashoffset:
+                    len
+            },
+            {
+                strokeDashoffset:
+                    0
+            }
+        ],
+        {
+            duration: 1500,
+            easing: "ease-out",
+            fill: "forwards"
+        }
+    );
+}
+/* =========================================================
+   23 CANVAS PARTICLES
+   ========================================================= */
+const canvas =
+    document.getElementById(
+        "particleCanvas"
+    );
+const ctx =
+    canvas.getContext(
+        "2d"
+    );
+let particles = [];
+let particleRAF = null;
+function createParticles() {
+    particles =
+        Array.from(
+            {
+                length: 70
+            },
+            () => ({
+                x:
+                    Math.random() *
+                    canvas.width,
+                y:
+                    Math.random() *
+                    canvas.height,
+                vx:
+                    (Math.random() - .5)
+                    * 2,
+                vy:
+                    (Math.random() - .5)
+                    * 2
+            })
+        );
+}
+function particleLoop() {
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    particles.forEach(
+        p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (
+                p.x < 0 ||
+                p.x > canvas.width
+            ) {
+                p.vx *= -1;
+            }
+            if (
+                p.y < 0 ||
+                p.y > canvas.height
+            ) {
+                p.vy *= -1;
+            }
+            ctx.beginPath();
+            ctx.arc(
+                p.x,
+                p.y,
+                2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fillStyle =
+                "#63e6a5";
+            ctx.fill();
+        }
+    );
+    particleRAF =
+        requestAnimationFrame(
+            particleLoop
+        );
+}
+function startParticles() {
+    if (
+        particleRAF === null
+    ) {
+        if (
+            particles.length === 0
+        ) {
+            createParticles();
+        }
+        particleRAF =
+            requestAnimationFrame(
+                particleLoop
+            );
+    }
+}
+function stopParticles() {
+    cancelAnimationFrame(
+        particleRAF
+    );
+    particleRAF = null;
+}
+/* =========================================================
+   24 FLIP
+   ========================================================= */
+function runFLIP() {
+    const container =
+        document.getElementById(
+            "flipContainer"
+        );
+    const items =
+        [...container.children];
+    const firstRects =
+        new Map();
+    items.forEach(
+        item => {
+            firstRects.set(
+                item,
+                item.getBoundingClientRect()
+            );
+        }
+    );
+    items.reverse().forEach(
+        item => {
+            container.appendChild(
+                item
+            );
+        }
+    );
+    items.forEach(
+        item => {
+            const first =
+                firstRects.get(
+                    item
+                );
+            const last =
+                item.getBoundingClientRect();
+            const dx =
+                first.left -
+                last.left;
+            const dy =
+                first.top -
+                last.top;
+            item.style.transform =
+                `translate(
+                    ${dx}px,
+                    ${dy}px
+                )`;
+            requestAnimationFrame(
+                () => {
+                    item.style.transition =
+                        "transform .6s ease";
+                    item.style.transform =
+                        "";
+                    item.addEventListener(
+                        "transitionend",
+                        () => {
+                            item.style.transition =
+                                "";
+                        },
+                        {
+                            once: true
+                        }
+                    );
+                }
+            );
+        }
+    );
+}
+/* =========================================================
+   27 VIEW TRANSITIONS
+   ========================================================= */
+function updateViewTransition() {
+    const box =
+        document.getElementById(
+            "vtBox"
+        );
+    const isA =
+        box.textContent === "A";
+    box.textContent =
+        isA ? "B" : "A";
+    box.style.transform =
+        isA
+            ? "rotate(180deg)"
+            : "rotate(0deg)";
+}
+function runViewTransition() {
+    if (
+        document.startViewTransition
+    ) {
+        document.startViewTransition(
+            () => {
+                updateViewTransition();
+            }
+        );
+    } else {
+        updateViewTransition();
+    }
+}
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+updateProgress();
+</script>
+</body>
+</html>
